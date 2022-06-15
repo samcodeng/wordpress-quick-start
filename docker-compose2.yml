@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+    wordpress:
+        container_name: wordpress
+        image: wordpress:php8.1-apache
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file:
+             - .env
+        environment:
+            WORDPRESS_DB_HOST: mariadb
+            WORDPRESS_DB_USER: $MYSQL_USER
+            WORDPRESS_DB_PASSWORD:  $MYSQL_PASSWORD
+            WORDPRESS_DB_NAME: devnify_db
+        volumes:
+            - devnify_data:/var/www/html
+            - ./devnify:/var/www/html
+    mariadb:
+        container_name: mariadb
+        image: mariadb
+        restart: always
+        env_file:
+             - .env
+        environment:
+            MYSQL_DATABASE: devnify_db
+            MYSQL_USER: $MYSQL_USER
+            MYSQL_PASSWORD: $MYSQL_PASSWORD
+            MYSQL_RANDOM_ROOT_PASSWORD: $MYSQL_PASSWORD
+        volumes:
+            - db_data:/var/lib/mysql
+    nginx:
+        container_name: nginx
+        image: nginx:latest
+        restart: unless-stopped
+        ports:
+            - 9280:80
+            - 443:443
+        volumes:
+            - ./nginx/conf:/etc/nginx/conf.d
+volumes:
+    db_data:
+    devnify_data:
